@@ -1,5 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup} from "@angular/forms";
+import {FormService} from "../../services/form.service";
+import * as dns from "dns";
 
 @Component({
   selector: 'app-checkout',
@@ -13,7 +15,11 @@ export class CheckoutComponent implements OnInit{
   totalPrice: number = 0
   totalQuantity: number = 0;
 
-  constructor(private formBuilder: FormBuilder) {}
+  creditCardYears: number[] = [];
+  creditCardMonths: number[] = [];
+
+  constructor(private formBuilder: FormBuilder,
+              private formService: FormService) {}
 
   ngOnInit(): void {
 
@@ -46,6 +52,27 @@ export class CheckoutComponent implements OnInit{
         expirationYear: ['']
       })
     });
+
+    //populate credit card months and years
+    const startMonth: number = new Date().getMonth() + 1;
+    console.log("startMonth: " + startMonth)
+
+    this.formService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        console.log("Retrieved months" + JSON.stringify(data));
+        this.creditCardMonths = data;
+      }
+    )
+
+    const startYear: number = new Date().getFullYear() + 1;
+    console.log("startYear: " + startYear);
+
+    this.formService.getCreditCardYears().subscribe(
+      data => {
+        console.log("Retrieved years" + JSON.stringify(data));
+        this.creditCardYears = data;
+      }
+    )
   }
 
   copyShippingAddressToBillingAddress(event: Event) {
@@ -64,6 +91,26 @@ export class CheckoutComponent implements OnInit{
 
   }
 
+  handleMonthsAndYears() {
 
-  protected readonly event = event;
+    const creditCardFormGroup = this.checkoutFormGroup.get('creditCard');
+
+    const currentYear: number = new Date().getFullYear();
+    const selectedYear: number = Number(creditCardFormGroup?.value.expirationYear);
+
+    let startMonth: number;
+
+    if (currentYear == selectedYear) {
+      startMonth = new Date().getMonth() + 1;
+    } else {
+      startMonth = 1;
+    }
+
+    this.formService.getCreditCardMonths(startMonth).subscribe(
+      data => {
+        console.log("Retrieved credit card months: " + JSON.stringify(data))
+        this.creditCardMonths = data;
+      }
+    )
+  }
 }
