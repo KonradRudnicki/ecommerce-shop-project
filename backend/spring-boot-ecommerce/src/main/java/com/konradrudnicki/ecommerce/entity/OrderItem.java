@@ -21,7 +21,7 @@ public class OrderItem {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "unity_price")
+    @Column(name = "unit_price")
     private BigDecimal unitPrice;
 
     @Column(name = "quantity")
